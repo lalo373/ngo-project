@@ -32,6 +32,14 @@ func New(database *sql.DB, cfg *config.Config, eng *payout.Engine) http.Handler 
 	mux.HandleFunc("POST /admin/login", a.loginAdmin)
 	mux.HandleFunc("POST /logout", a.logout)
 	mux.HandleFunc("GET /me", a.me)
+	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, 200, map[string]string{"status": "ok"})
+	})
+
+	// external cron trigger (protect with CRON_SECRET); the in-process
+	// scheduler is the primary mechanism, this is for hosts that sleep.
+	mux.HandleFunc("POST /cron/runPayout", a.cronRunPayout)
+	mux.HandleFunc("GET /cron/runPayout", a.cronRunPayout)
 
 	// member payout views (any of the four member roles)
 	member := a.requireMember()

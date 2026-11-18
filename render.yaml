@@ -1,0 +1,19 @@
+# Render blueprint for the Go API.
+# Deploy: Render dashboard -> New -> Blueprint -> pick this repo.
+services:
+  - type: web
+    name: payroll-api
+    runtime: docker
+    plan: free
+    region: ohio
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /healthz
+    envVars:
+      - key: DBURL
+        sync: false          # set in the Render dashboard (your Neon URL)
+      - key: ADMIN_USER
+        sync: false
+      - key: ADMIN_PASS
+        sync: false
+      - key: PORT
+        value: 10000

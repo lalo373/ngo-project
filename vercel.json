@@ -1,0 +1,64 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm --prefix frontend ci",
+  "buildCommand": "npm --prefix frontend run build",
+  "outputDirectory": "static",
+  "rewrites": [
+    {
+      "source": "/login/:role",
+      "destination": "https://payroll-api.onrender.com/login/:role"
+    },
+    {
+      "source": "/logout",
+      "destination": "https://payroll-api.onrender.com/logout"
+    },
+    {
+      "source": "/me",
+      "destination": "https://payroll-api.onrender.com/me"
+    },
+    {
+      "source": "/dailyPayout",
+      "destination": "https://payroll-api.onrender.com/dailyPayout"
+    },
+    {
+      "source": "/weeklyPayouts",
+      "destination": "https://payroll-api.onrender.com/weeklyPayouts"
+    },
+    {
+      "source": "/calendar",
+      "destination": "https://payroll-api.onrender.com/calendar"
+    },
+    {
+      "source": "/admin/login",
+      "destination": "https://payroll-api.onrender.com/admin/login"
+    },
+    {
+      "source": "/admin/runPayout",
+      "destination": "https://payroll-api.onrender.com/admin/runPayout"
+    },
+    {
+      "source": "/admin/dashboard/:path*",
+      "destination": "https://payroll-api.onrender.com/admin/dashboard/:path*"
+    },
+    {
+      "source": "/admin/members",
+      "destination": "https://payroll-api.onrender.com/admin/members"
+    },
+    {
+      "source": "/admin/members/:path*",
+      "destination": "https://payroll-api.onrender.com/admin/members/:path*"
+    },
+    {
+      "source": "/((?!assets/).*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ]
+}

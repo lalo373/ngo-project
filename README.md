@@ -31,6 +31,51 @@ cd frontend && npm install && npm run dev   # dev server, proxies API to :5001
 cd frontend && npm run build                # production build -> ../static
 ```
 
+## Deployment
+
+The Go API needs a long-running host (Vercel only runs static sites and
+short-lived functions), so the app is split in two:
+
+- **Frontend + API proxy on Vercel** — `vercel.json` builds `frontend/`
+  into `static/`, serves the SPA, and rewrites `/login`, `/me`,
+  `/dailyPayout`, `/weeklyPayouts`, `/calendar` and `/admin/*` to the
+  Go API. Cookies stay first-party, so sessions work unchanged.
+- **Go API on Render** (Docker) — `render.yaml` + `Dockerfile`.
+  The 20:00 IST scheduler runs inside the API process.
+
+### 1. Deploy the API (Render)
+
+1. Render → New → Blueprint → select the repo (`render.yaml` is detected).
+2. Set env vars: `DBURL` (Neon URL), `ADMIN_USER`, `ADMIN_PASS`,
+   optionally `CRON_SECRET`.
+3. Deploy and copy the service URL, e.g. `https://payroll-api.onrender.com`.
+
+### 2. Deploy the frontend (Vercel)
+
+1. Replace every `https://payroll-api.onrender.com` in `vercel.json` with
+   your Render URL.
+2. Vercel project → Settings → General → **Root Directory must be the
+   repo root** (not `frontend`), Framework Preset: *Other*. The build
+   command/output directory come from `vercel.json`.
+3. Redeploy.
+
+### Keeping the daily job reliable
+
+Free Render instances sleep when idle, which skips the in-process
+20:00 IST run. Either use a paid instance, or call the protected
+endpoint from any cron service once a day at 14:30 UTC:
+
+```
+GET https://<api-host>/cron/runPayout?key=<CRON_SECRET>
+```
+
+## Security note
+
+`.env` holds real credentials and must never be committed:
+`git rm --cached .env`, rotate the Neon password and admin password,
+then set the new values in Render's environment variables.
+
+
 ## Dummy dataset credentials
 
 | Role | IDs | Password |

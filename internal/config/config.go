@@ -15,8 +15,9 @@ type Config struct {
 	Port  string
 	DBURL string
 
-	AdminUser string
-	AdminPass string
+	AdminUser  string
+	AdminPass  string
+	CronSecret string
 
 	// Executive eligibility: logged in between 9:00 and 17:00 IST
 	// AND target_count >= ExecMinTarget.
@@ -44,6 +45,7 @@ func Load() *Config {
 		DBURL:            env("DBURL", ""),
 		AdminUser:        env("ADMIN_USER", "admin"),
 		AdminPass:        env("ADMIN_PASS", "admin@123"),
+		CronSecret:       env("CRON_SECRET", ""),
 		ExecMinTarget:    25,
 		ExecTierTarget:   45,
 		ExecBaseAmount:   500,

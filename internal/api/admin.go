@@ -1,6 +1,7 @@
 package api
 
 import (
+	"crypto/subtle"
 	"database/sql"
 	"encoding/csv"
 	"fmt"
@@ -83,6 +84,32 @@ func boolStr(b bool) string {
 // runPayout triggers the eligibility computation for a date on demand.
 // POST /admin/runPayout?date=YYYY-MM-DD
 func (a *API) runPayout(w http.ResponseWriter, r *http.Request) {
+	dateStr := queryStrings(r, "date", todayIST().Format("2006-01-02"))
+	day, err := time.ParseInLocation("2006-01-02", dateStr, auth.IST)
+	if err != nil {
+		fail(w, 400, "date must be YYYY-MM-DD")
+		return
+	}
+	n, err := a.Eng.ComputeDate(r.Context(), day)
+	if err != nil {
+		fail(w, 500, err.Error())
+		return
+	}
+	writeJSON(w, 200, map[string]any{"computed": n, "date": dateStr})
+}
+
+// cronRunPayout lets an external scheduler trigger the daily computation.
+// Requires CRON_SECRET (query ?key=... or Authorization: Bearer ...).
+func (a *API) cronRunPayout(w http.ResponseWriter, r *http.Request) {
+	secret := a.Cfg.CronSecret
+	got := r.URL.Query().Get("key")
+	if got == "" {
+		got = strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+	}
+	if secret == "" || subtle.ConstantTimeCompare([]byte(got), []byte(secret)) != 1 {
+		fail(w, 403, "forbidden")
+		return
+	}
 	dateStr := queryStrings(r, "date", todayIST().Format("2006-01-02"))
 	day, err := time.ParseInLocation("2006-01-02", dateStr, auth.IST)
 	if err != nil {

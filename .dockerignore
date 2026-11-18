@@ -1,0 +1,10 @@
+.git
+.gitignore
+frontend
+frontend/node_modules
+static
+scripts
+.docs
+*.log
+.env
+.env.*
