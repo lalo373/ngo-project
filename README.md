@@ -31,49 +31,49 @@ cd frontend && npm install && npm run dev   # dev server, proxies API to :5001
 cd frontend && npm run build                # production build -> ../static
 ```
 
-## Deployment
+## Deployment — single EC2 instance (recommended)
 
-The Go API needs a long-running host (Vercel only runs static sites and
-short-lived functions), so the app is split in two:
+One Ubuntu box runs everything: Go binary (API + built SPA), local
+PostgreSQL, Caddy for automatic HTTPS. `deploy/` has all scripts.
 
-- **Frontend + API proxy on Vercel** — `vercel.json` builds `frontend/`
-  into `static/`, serves the SPA, and rewrites `/login`, `/me`,
-  `/dailyPayout`, `/weeklyPayouts`, `/calendar` and `/admin/*` to the
-  Go API. Cookies stay first-party, so sessions work unchanged.
-- **Go API on Render** (Docker) — `render.yaml` + `Dockerfile`.
-  The 20:00 IST scheduler runs inside the API process.
+1. **AWS**: security group allows only 22, 80, 443; attach an **Elastic
+   IP** so the address is stable.
+2. **One-time setup** (installs Postgres, Caddy, 2G swap, systemd unit,
+   firewall, nightly backups; prints generated `ADMIN_PASS`/`CRON_SECRET`):
+   ```sh
+   scp -r deploy ubuntu@<host>:~/deploy
+   ssh ubuntu@<host> 'sudo bash ~/deploy/setup.sh [your.domain.com]'
+   ```
+   Without a domain it uses `<ip-with-dashes>.sslip.io` — a real DNS
+   name with a Let's Encrypt certificate, no domain purchase needed.
+3. **Move existing data** from Neon (or skip and seed fresh):
+   ```sh
+   ssh ubuntu@<host> "sudo NEON_URL='postgresql://...' bash ~/deploy/migrate-from-neon.sh"
+   # fresh dummy data instead:
+   ssh ubuntu@<host> "sudo bash -c 'set -a; . /etc/payroll/env; set +a; /opt/payroll/payroll -seed /opt/payroll/data/dummy_activities.csv'"
+   ```
+4. **Deploy / update the app** from your machine:
+   ```sh
+   HOST=ubuntu@<host> ./deploy/deploy.sh
+   ```
+5. Open `https://<domain>`. The 20:00 IST job runs in-process; nightly
+   `pg_dump` backups land in `/var/backups/payroll` (14-day retention,
+   optional `S3_BUCKET` upload).
 
-### 1. Deploy the API (Render)
+Config: `PORT`, `BIND_ADDR=127.0.0.1`, `DBURL`, `ADMIN_USER`,
+`ADMIN_PASS`, `CRON_SECRET` in `/etc/payroll/env`. Point `DBURL` at Neon
+(or any Postgres) if you'd rather not host the database.
 
-1. Render → New → Blueprint → select the repo (`render.yaml` is detected).
-2. Set env vars: `DBURL` (Neon URL), `ADMIN_USER`, `ADMIN_PASS`,
-   optionally `CRON_SECRET`.
-3. Deploy and copy the service URL, e.g. `https://payroll-api.onrender.com`.
+### Alternative: Vercel + Render
 
-### 2. Deploy the frontend (Vercel)
-
-1. Replace every `https://payroll-api.onrender.com` in `vercel.json` with
-   your Render URL.
-2. Vercel project → Settings → General → **Root Directory must be the
-   repo root** (not `frontend`), Framework Preset: *Other*. The build
-   command/output directory come from `vercel.json`.
-3. Redeploy.
-
-### Keeping the daily job reliable
-
-Free Render instances sleep when idle, which skips the in-process
-20:00 IST run. Either use a paid instance, or call the protected
-endpoint from any cron service once a day at 14:30 UTC:
-
-```
-GET https://<api-host>/cron/runPayout?key=<CRON_SECRET>
-```
+`vercel.json` (static frontend + API proxy) and `render.yaml`/`Dockerfile`
+(API) are kept in the repo if you prefer the managed split instead.
 
 ## Security note
 
 `.env` holds real credentials and must never be committed:
 `git rm --cached .env`, rotate the Neon password and admin password,
-then set the new values in Render's environment variables.
+then set the new values in the server's `/etc/payroll/env` (or Render).
 
 
 ## Dummy dataset credentials

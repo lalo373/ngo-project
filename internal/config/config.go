@@ -14,6 +14,9 @@ var IST = "Asia/Kolkata"
 type Config struct {
 	Port  string
 	DBURL string
+	// BindAddr restricts the listen address (e.g. 127.0.0.1 when a
+	// reverse proxy runs on the same box). Empty = all interfaces.
+	BindAddr string
 
 	AdminUser  string
 	AdminPass  string
@@ -43,6 +46,7 @@ func Load() *Config {
 	c := &Config{
 		Port:             env("PORT", "5001"),
 		DBURL:            env("DBURL", ""),
+		BindAddr:         env("BIND_ADDR", ""),
 		AdminUser:        env("ADMIN_USER", "admin"),
 		AdminPass:        env("ADMIN_PASS", "admin@123"),
 		CronSecret:       env("CRON_SECRET", ""),

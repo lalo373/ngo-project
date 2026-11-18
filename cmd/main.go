@@ -73,12 +73,16 @@ func main() {
 		}
 	}()
 
+	addr := ":" + cfg.Port
+	if cfg.BindAddr != "" {
+		addr = cfg.BindAddr + ":" + cfg.Port
+	}
 	srv := &http.Server{
-		Addr:              ":" + cfg.Port,
+		Addr:              addr,
 		Handler:           api.New(database, cfg, eng),
 		ReadHeaderTimeout: 10 * time.Second,
 	}
-	log.Printf("payroll listening on :%s", cfg.Port)
+	log.Printf("payroll listening on %s", addr)
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal(err)
 	}

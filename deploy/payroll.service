@@ -1,0 +1,25 @@
+[Unit]
+Description=Payroll API
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=payroll
+Group=payroll
+WorkingDirectory=/opt/payroll
+EnvironmentFile=/etc/payroll/env
+ExecStart=/opt/payroll/payroll
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=20
+
+# hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/payroll
+
+[Install]
+WantedBy=multi-user.target
