@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Payroll — design demo</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --text: #111111;
+        --muted: #6b7280;
+        --border: #e5e5e5;
+        --card: #ffffff;
+        --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 4px 12px rgba(0, 0, 0, 0.04);
+        --radius: 10px;
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        color-scheme: light;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-size: 15px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      /* ---------- layout ---------- */
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 28px;
+        border-bottom: 1px solid var(--border);
+        background: #fff;
+      }
+
+      .topbar-brand {
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .topbar-user {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .topbar-name { font-weight: 600; }
+
+      .topbar-role {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .container {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 28px 20px 90px;
+      }
+
+      /* ---------- cards ---------- */
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 20px;
+      }
+
+      .card + .card { margin-top: 20px; }
+
+      .card h2 {
+        margin: 0 0 14px;
+        font-size: 16px;
+        font-weight: 650;
+      }
+
+      .card-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .card-title-row h2 { margin: 0; }
+
+      /* ---------- hero (daily payout) ---------- */
+
+      .hero {
+        text-align: center;
+        padding: 36px 20px;
+      }
+
+      .hero-date {
+        color: var(--muted);
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+
+      .hero-amount {
+        font-size: 52px;
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        margin: 8px 0 18px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .hero-amount.muted { color: var(--muted); }
+
+      .hero-stats {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-top: 22px;
+        flex-wrap: wrap;
+      }
+
+      .stat-label {
+        color: var(--muted);
+        font-size: 13px;
+        margin-bottom: 2px;
+      }
+
+      .stat-value {
+        font-weight: 650;
+        font-size: 20px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* ---------- badge ---------- */
+
+      .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+        border: 1px solid var(--border);
+      }
+
+      .badge-eligible {
+        background: #111;
+        color: #fff;
+        border-color: #111;
+      }
+
+      .badge-not-eligible {
+        background: #fff;
+        color: var(--muted);
+      }
+
+      /* ---------- buttons ---------- */
+
+      .btn {
+        appearance: none;
+        border: 1px solid #111;
+        background: #111;
+        color: #fff;
+        font: inherit;
+        font-weight: 600;
+        padding: 9px 18px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: opacity 0.15s ease, background 0.15s ease;
+      }
+
+      .btn:hover { opacity: 0.85; }
+
+      .btn-secondary {
+        background: #fff;
+        color: #111;
+        border: 1px solid var(--border);
+      }
+
+      .btn-secondary:hover { background: #f7f7f7; }
+
+      .btn-small {
+        padding: 5px 12px;
+        font-size: 13px;
+        border-radius: 7px;
+      }
+
+      /* ---------- forms ---------- */
+
+      label.field {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        margin-bottom: 12px;
+      }
+
+      label.field span {
+        display: block;
+        margin-bottom: 5px;
+      }
+
+      input, select {
+        font: inherit;
+        color: var(--text);
+        width: 100%;
+        padding: 9px 12px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #fff;
+        outline: none;
+        transition: border-color 0.15s ease;
+      }
+
+      input:focus, select:focus { border-color: #111; }
+
+      .inline-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .inline-controls select { width: auto; }
+
+      /* ---------- feedback ---------- */
+
+      .muted { color: var(--muted); }
+
+      /* ---------- tabs ---------- */
+
+      .tabs {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .tab {
+        appearance: none;
+        background: none;
+        border: none;
+        font: inherit;
+        font-weight: 600;
+        color: var(--muted);
+        padding: 10px 16px;
+        cursor: pointer;
+        border-bottom: 2px solid transparent;
+        margin-bottom: -1px;
+      }
+
+      .tab:hover { color: var(--text); }
+
+      .tab.active {
+        color: var(--text);
+        border-bottom-color: #111;
+      }
+
+      /* ---------- tables ---------- */
+
+      .table-wrap { overflow-x: auto; }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th, td {
+        text-align: left;
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+      }
+
+      th {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+
+      tbody tr:last-child td { border-bottom: none; }
+
+      td.num, th.num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      tr.row-head { cursor: pointer; }
+
+      tr.row-head:hover { background: #fafafa; }
+
+      tr.nested-row td {
+        background: #fafafa;
+        padding: 0 12px 12px;
+      }
+
+      .week-chevron {
+        display: inline-block;
+        transition: transform 0.15s ease;
+        margin-right: 8px;
+        color: var(--muted);
+      }
+
+      .week-chevron.open { transform: rotate(90deg); }
+
+      /* ---------- login ---------- */
+
+      .login-wrap {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+      }
+
+      .login-card {
+        width: 100%;
+        max-width: 400px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 32px;
+      }
+
+      .login-card h1 {
+        margin: 0 0 4px;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .login-sub {
+        color: var(--muted);
+        font-size: 14px;
+        margin: 0 0 22px;
+      }
+
+      /* ---------- demo chrome (not part of the product) ---------- */
+
+      .demo-bar {
+        position: fixed;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.96);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+        padding: 8px 8px 8px 16px;
+        font-size: 13px;
+        color: var(--muted);
+        z-index: 100;
+        white-space: nowrap;
+      }
+
+      .demo-bar strong {
+        color: var(--text);
+        font-weight: 650;
+      }
+
+      .demo-bar .sep { color: #d4d4d4; }
+
+      .demo-bar button {
+        appearance: none;
+        border: 1px solid transparent;
+        background: none;
+        font: inherit;
+        font-weight: 600;
+        color: var(--muted);
+        padding: 5px 10px;
+        border-radius: 999px;
+        cursor: pointer;
+      }
+
+      .demo-bar button:hover { color: var(--text); }
+
+      .demo-bar button.active {
+        background: #111;
+        color: #fff;
+      }
+
+      .demo-bar select {
+        width: auto;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      @media (max-width: 560px) {
+        .topbar { padding: 12px 16px; }
+        .hero-amount { font-size: 40px; }
+        .demo-bar .label { display: none; }
+        .demo-bar select { max-width: 130px; }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ============ login ============ -->
+    <div id="loginScreen">
+      <div class="login-wrap">
+        <div class="login-card">
+          <h1>Payroll</h1>
+          <p class="login-sub">Sign in to view your payouts.</p>
+
+          <form id="loginForm">
+            <label class="field">
+              <span>Role</span>
+              <select id="role">
+                <option value="executive">Executive</option>
+                <option value="supervisor">Supervisor</option>
+                <option value="district_coordinator">District Coordinator</option>
+                <option value="regional_coordinator">Regional Coordinator</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>ID</span>
+              <input type="number" id="loginId" value="1002" min="1" />
+            </label>
+
+            <label class="field">
+              <span>Password</span>
+              <input type="password" id="password" value="demo" />
+            </label>
+
+            <button class="btn" type="submit" style="width: 100%; margin-top: 8px">
+              Sign in
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ dashboard ============ -->
+    <div id="dashboardScreen" hidden>
+      <header class="topbar">
+        <div class="topbar-brand">Payroll</div>
+        <div class="topbar-user">
+          <div style="text-align: right">
+            <div class="topbar-name" id="meName">Executive 002</div>
+            <div class="topbar-role" id="meRole">Executive</div>
+          </div>
+          <button class="btn btn-secondary btn-small" id="logoutBtn">Logout</button>
+        </div>
+      </header>
+
+      <div class="container">
+        <div class="tabs" role="tablist">
+          <button class="tab active" data-tab="daily" role="tab">Daily Payout</button>
+          <button class="tab" data-tab="weekly" role="tab">Weekly Payouts</button>
+          <button class="tab" data-tab="calendar" role="tab">Calendar</button>
+        </div>
+
+        <!-- daily -->
+        <section id="tab-daily">
+          <div class="card hero">
+            <div class="hero-date" id="heroDate">Today · 18 Nov 2026</div>
+            <div>
+              <span class="badge badge-eligible" id="heroBadge">Eligible</span>
+            </div>
+            <div class="hero-amount" id="heroAmount">₹500.00</div>
+            <div class="hero-stats">
+              <div>
+                <div class="stat-label" id="metricLabel">Target</div>
+                <div class="stat-value" id="metricValue">32</div>
+              </div>
+              <div>
+                <div class="stat-label">This week</div>
+                <div class="stat-value" id="weekTotal">₹2,000.00</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- weekly -->
+        <section id="tab-weekly" hidden>
+          <div class="card">
+            <h2>Weekly payouts</h2>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Week (Mon – Sun)</th>
+                    <th class="num">Total</th>
+                  </tr>
+                </thead>
+                <tbody id="weeksBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- calendar -->
+        <section id="tab-calendar" hidden>
+          <div class="card">
+            <div class="card-title-row">
+              <h2>Calendar</h2>
+              <div class="inline-controls">
+                <label class="field" style="margin-bottom: 0">
+                  <span class="muted" style="font-size: 13px">Month</span>
+                  <select id="month">
+                    <option value="2026-10">October 2026</option>
+                    <option value="2026-11" selected>November 2026</option>
+                    <option value="2026-12">December 2026</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th class="num">Payout</th>
+                  </tr>
+                </thead>
+                <tbody id="calendarBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- demo switcher: not part of the product UI -->
+    <div class="demo-bar">
+      <span class="label">Design demo</span>
+      <button id="demoLogin">Login</button>
+      <button id="demoDash">Payroll</button>
+      <span class="sep">·</span>
+      <select id="demoRole" aria-label="Preview role">
+        <option value="executive">Executive</option>
+        <option value="supervisor">Supervisor</option>
+        <option value="district_coordinator">District Coordinator</option>
+        <option value="regional_coordinator">Regional Coordinator</option>
+      </select>
+    </div>
+
+    <script>
+      const money = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' });
+      const shortDate = (iso) =>
+        new Date(iso + 'T00:00:00').toLocaleDateString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        });
+      const addDays = (iso, n) => {
+        const d = new Date(iso + 'T00:00:00');
+        d.setDate(d.getDate() + n);
+        const p = (x) => String(x).padStart(2, '0');
+        return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+      };
+      const isWeekend = (iso) => {
+        const w = new Date(iso + 'T00:00:00').getDay();
+        return w === 0 || w === 6;
+      };
+
+      // Sample data (matches the seeded demo week, Nov 2026).
+      const DEMO = {
+        executive: {
+          name: 'Executive 002',
+          roleLabel: 'Executive',
+          metricLabel: 'Target',
+          percent: false,
+          today: { eligible: true, amount: 500, metric: 32 },
+          weeks: [
+            { start: '2026-11-16', days: [1000, 500, 500, 0, 0, 0, 0] },
+            { start: '2026-11-09', days: [1000, 500, 0, 1000, 500, 0, 0] },
+            { start: '2026-11-02', days: [500, 1000, 1000, 500, 0, 0, 0] },
+          ],
+          calendarBase: (day) => (day % 3 === 0 ? 1000 : 500),
+          calendarMiss: (day) => day % 6 === 0,
+        },
+        supervisor: {
+          name: 'Supervisor 1',
+          roleLabel: 'Supervisor',
+          metricLabel: 'Eligibility',
+          percent: true,
+          today: { eligible: true, amount: 500, metric: 75 },
+          weeks: [
+            { start: '2026-11-16', days: [500, 500, 500, 0, 0, 0, 0] },
+            { start: '2026-11-09', days: [500, 500, 0, 500, 500, 0, 0] },
+            { start: '2026-11-02', days: [500, 0, 500, 500, 500, 0, 0] },
+          ],
+          calendarBase: () => 500,
+          calendarMiss: (day) => day % 8 === 0,
+        },
+        district_coordinator: {
+          name: 'Anita Sharma',
+          roleLabel: 'District Coordinator',
+          metricLabel: 'Eligibility',
+          percent: true,
+          today: { eligible: true, amount: 750, metric: 85 },
+          weeks: [
+            { start: '2026-11-16', days: [750, 750, 750, 0, 0, 0, 0] },
+            { start: '2026-11-09', days: [750, 750, 0, 750, 750, 0, 0] },
+            { start: '2026-11-02', days: [750, 0, 750, 750, 750, 0, 0] },
+          ],
+          calendarBase: () => 750,
+          calendarMiss: (day) => day % 9 === 0,
+        },
+        // No payout rule defined for this role yet — shown as not eligible,
+        // matching the real product behaviour.
+        regional_coordinator: {
+          name: 'Ramesh Kumar',
+          roleLabel: 'Regional Coordinator',
+          metricLabel: 'Eligibility',
+          percent: true,
+          today: { eligible: false, amount: 0, metric: 0 },
+          weeks: [
+            { start: '2026-11-16', days: [0, 0, 0, 0, 0, 0, 0] },
+            { start: '2026-11-09', days: [0, 0, 0, 0, 0, 0, 0] },
+            { start: '2026-11-02', days: [0, 0, 0, 0, 0, 0, 0] },
+          ],
+          calendarBase: () => 0,
+          calendarMiss: () => true,
+        },
+      };
+
+      const state = { role: 'executive', tab: 'daily', open: { 0: true } };
+      const $ = (id) => document.getElementById(id);
+
+      function weekTotal(week) {
+        return week.days.reduce((a, b) => a + b, 0);
+      }
+
+      function renderWeeks(role) {
+        const body = $('weeksBody');
+        body.innerHTML = '';
+        DEMO[role].weeks.forEach((w, i) => {
+          const isOpen = !!state.open[i];
+          const head = document.createElement('tr');
+          head.className = 'row-head';
+          head.innerHTML =
+            '<td><span class="week-chevron ' +
+            (isOpen ? 'open' : '') +
+            '">▸</span>' +
+            shortDate(w.start) +
+            ' – ' +
+            shortDate(addDays(w.start, 6)) +
+            '</td><td class="num">' +
+            money.format(weekTotal(w)) +
+            '</td>';
+          head.addEventListener('click', () => {
+            state.open[i] = !state.open[i];
+            renderWeeks(role);
+          });
+          body.appendChild(head);
+
+          if (isOpen) {
+            const nested = document.createElement('tr');
+            nested.className = 'nested-row';
+            const dayRows = w.days
+              .map((amount, d) => {
+                const date = addDays(w.start, d);
+                return (
+                  '<tr><td>' +
+                  shortDate(date) +
+                  '</td><td>' +
+                  (amount > 0 ? 'Yes' : 'No') +
+                  '</td><td class="num">' +
+                  (amount > 0 ? money.format(amount) : '—') +
+                  '</td></tr>'
+                );
+              })
+              .join('');
+            nested.innerHTML =
+              '<td colspan="2"><table><thead><tr><th>Date</th><th>Eligible</th><th class="num">Payout</th></tr></thead><tbody>' +
+              dayRows +
+              '</tbody></table></td>';
+            body.appendChild(nested);
+          }
+        });
+      }
+
+      function renderCalendar(role, month) {
+        const body = $('calendarBody');
+        body.innerHTML = '';
+        const [y, m] = month.split('-').map(Number);
+        const daysInMonth = new Date(y, m, 0).getDate();
+        const cfg = DEMO[role];
+        const weekAmounts = {};
+        cfg.weeks.forEach((w) =>
+          w.days.forEach((a, i) => {
+            weekAmounts[addDays(w.start, i)] = a;
+          }),
+        );
+
+        for (let d = 1; d <= daysInMonth; d++) {
+          const iso = `${month}-${String(d).padStart(2, '0')}`;
+          let amount = 0;
+          if (iso in weekAmounts) {
+            amount = weekAmounts[iso];
+          } else if (iso < '2026-11-16' && (month === '2026-10' || month === '2026-11')) {
+            const dayOfWeek = new Date(iso + 'T00:00:00').getDay();
+            amount = isWeekend(iso) || cfg.calendarMiss(d) ? 0 : cfg.calendarBase(d);
+          } else if (month === '2026-10') {
+            amount = isWeekend(iso) || cfg.calendarMiss(d) ? 0 : cfg.calendarBase(d);
+          }
+          const tr = document.createElement('tr');
+          tr.innerHTML =
+            '<td>' + shortDate(iso) + '</td><td class="num">' +
+            (amount > 0 ? money.format(amount) : '—') +
+            '</td>';
+          body.appendChild(tr);
+        }
+      }
+
+      function renderDaily(role) {
+        const cfg = DEMO[role];
+        $('meName').textContent = cfg.name;
+        $('meRole').textContent = cfg.roleLabel;
+        $('heroDate').textContent = 'Today · ' + shortDate('2026-11-18');
+        const badge = $('heroBadge');
+        badge.textContent = cfg.today.eligible ? 'Eligible' : 'Not eligible';
+        badge.className = 'badge ' + (cfg.today.eligible ? 'badge-eligible' : 'badge-not-eligible');
+        const amount = $('heroAmount');
+        amount.textContent = money.format(cfg.today.amount);
+        amount.className = 'hero-amount' + (cfg.today.eligible ? '' : ' muted');
+        $('metricLabel').textContent = cfg.metricLabel;
+        $('metricValue').textContent = cfg.percent
+          ? cfg.today.metric.toFixed(1) + '%'
+          : String(cfg.today.metric);
+        $('weekTotal').textContent = money.format(weekTotal(cfg.weeks[0]));
+      }
+
+      function renderDashboard() {
+        renderDaily(state.role);
+        renderWeeks(state.role);
+        renderCalendar(state.role, $('month').value);
+      }
+
+      function showScreen(name) {
+        $('loginScreen').hidden = name !== 'login';
+        $('dashboardScreen').hidden = name !== 'dashboard';
+        $('demoLogin').classList.toggle('active', name === 'login');
+        $('demoDash').classList.toggle('active', name === 'dashboard');
+        if (name === 'dashboard') renderDashboard();
+        window.scrollTo(0, 0);
+      }
+
+      function setTab(tab) {
+        state.tab = tab;
+        document.querySelectorAll('.tab').forEach((b) =>
+          b.classList.toggle('active', b.dataset.tab === tab),
+        );
+        $('tab-daily').hidden = tab !== 'daily';
+        $('tab-weekly').hidden = tab !== 'weekly';
+        $('tab-calendar').hidden = tab !== 'calendar';
+      }
+
+      function setRole(role) {
+        if (!DEMO[role]) role = 'executive';
+        state.role = role;
+        $('role').value = role;
+        $('demoRole').value = role;
+        if (!$('dashboardScreen').hidden) renderDashboard();
+      }
+
+      // events
+      $('loginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        setRole($('role').value);
+        showScreen('dashboard');
+      });
+      $('logoutBtn').addEventListener('click', () => showScreen('login'));
+      document.querySelectorAll('.tab').forEach((b) =>
+        b.addEventListener('click', () => setTab(b.dataset.tab)),
+      );
+      $('month').addEventListener('change', () =>
+        renderCalendar(state.role, $('month').value),
+      );
+      $('demoRole').addEventListener('change', (e) => setRole(e.target.value));
+      $('demoLogin').addEventListener('click', () => showScreen('login'));
+      $('demoDash').addEventListener('click', () => showScreen('dashboard'));
+
+      // initial state
+      showScreen('login');
+      setTab('daily');
+    </script>
+  </body>
+</html>
