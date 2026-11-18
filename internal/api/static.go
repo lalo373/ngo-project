@@ -26,7 +26,7 @@ func (a *API) staticHandler() http.Handler {
 		}
 		// otherwise serve real files if they exist, else the SPA shell
 		if p != "/index.html" {
-			if _, err := os.Stat("." + p); err != nil {
+			if _, err := os.Stat(path.Join("static", p)); err != nil {
 				serveIndex(w, r, fileServer)
 				return
 			}

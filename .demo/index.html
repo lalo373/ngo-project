@@ -574,6 +574,8 @@
       };
 
       // Sample data (matches the seeded demo week, Nov 2026).
+      // Each day: { amount, metric } — metric is the daily target count for
+      // executives, or the eligible percentage for supervisors/DCs.
       const DEMO = {
         executive: {
           name: 'Executive 002',
@@ -582,9 +584,42 @@
           percent: false,
           today: { eligible: true, amount: 500, metric: 32 },
           weeks: [
-            { start: '2026-11-16', days: [1000, 500, 500, 0, 0, 0, 0] },
-            { start: '2026-11-09', days: [1000, 500, 0, 1000, 500, 0, 0] },
-            { start: '2026-11-02', days: [500, 1000, 1000, 500, 0, 0, 0] },
+            {
+              start: '2026-11-16',
+              days: [
+                { amount: 1000, metric: 52 },
+                { amount: 500, metric: 33 },
+                { amount: 500, metric: 32 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+              ],
+            },
+            {
+              start: '2026-11-09',
+              days: [
+                { amount: 1000, metric: 54 },
+                { amount: 500, metric: 36 },
+                { amount: 0, metric: 18 },
+                { amount: 1000, metric: 51 },
+                { amount: 500, metric: 30 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+              ],
+            },
+            {
+              start: '2026-11-02',
+              days: [
+                { amount: 500, metric: 31 },
+                { amount: 1000, metric: 47 },
+                { amount: 1000, metric: 45 },
+                { amount: 500, metric: 27 },
+                { amount: 0, metric: 22 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+              ],
+            },
           ],
           calendarBase: (day) => (day % 3 === 0 ? 1000 : 500),
           calendarMiss: (day) => day % 6 === 0,
@@ -596,9 +631,42 @@
           percent: true,
           today: { eligible: true, amount: 500, metric: 75 },
           weeks: [
-            { start: '2026-11-16', days: [500, 500, 500, 0, 0, 0, 0] },
-            { start: '2026-11-09', days: [500, 500, 0, 500, 500, 0, 0] },
-            { start: '2026-11-02', days: [500, 0, 500, 500, 500, 0, 0] },
+            {
+              start: '2026-11-16',
+              days: [
+                { amount: 500, metric: 80 },
+                { amount: 500, metric: 75 },
+                { amount: 500, metric: 80 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+              ],
+            },
+            {
+              start: '2026-11-09',
+              days: [
+                { amount: 500, metric: 70 },
+                { amount: 500, metric: 75 },
+                { amount: 0, metric: 60 },
+                { amount: 500, metric: 70 },
+                { amount: 500, metric: 75 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+              ],
+            },
+            {
+              start: '2026-11-02',
+              days: [
+                { amount: 500, metric: 80 },
+                { amount: 0, metric: 60 },
+                { amount: 500, metric: 75 },
+                { amount: 500, metric: 70 },
+                { amount: 500, metric: 75 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+              ],
+            },
           ],
           calendarBase: () => 500,
           calendarMiss: (day) => day % 8 === 0,
@@ -610,9 +678,42 @@
           percent: true,
           today: { eligible: true, amount: 750, metric: 85 },
           weeks: [
-            { start: '2026-11-16', days: [750, 750, 750, 0, 0, 0, 0] },
-            { start: '2026-11-09', days: [750, 750, 0, 750, 750, 0, 0] },
-            { start: '2026-11-02', days: [750, 0, 750, 750, 750, 0, 0] },
+            {
+              start: '2026-11-16',
+              days: [
+                { amount: 750, metric: 100 },
+                { amount: 750, metric: 85 },
+                { amount: 750, metric: 100 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+              ],
+            },
+            {
+              start: '2026-11-09',
+              days: [
+                { amount: 750, metric: 85 },
+                { amount: 750, metric: 100 },
+                { amount: 0, metric: 60 },
+                { amount: 750, metric: 85 },
+                { amount: 750, metric: 100 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+              ],
+            },
+            {
+              start: '2026-11-02',
+              days: [
+                { amount: 750, metric: 85 },
+                { amount: 0, metric: 60 },
+                { amount: 750, metric: 100 },
+                { amount: 750, metric: 85 },
+                { amount: 750, metric: 100 },
+                { amount: 0, metric: 0 },
+                { amount: 0, metric: 0 },
+              ],
+            },
           ],
           calendarBase: () => 750,
           calendarMiss: (day) => day % 9 === 0,
@@ -626,9 +727,9 @@
           percent: true,
           today: { eligible: false, amount: 0, metric: 0 },
           weeks: [
-            { start: '2026-11-16', days: [0, 0, 0, 0, 0, 0, 0] },
-            { start: '2026-11-09', days: [0, 0, 0, 0, 0, 0, 0] },
-            { start: '2026-11-02', days: [0, 0, 0, 0, 0, 0, 0] },
+            { start: '2026-11-16', days: Array(7).fill({ amount: 0, metric: 0 }) },
+            { start: '2026-11-09', days: Array(7).fill({ amount: 0, metric: 0 }) },
+            { start: '2026-11-02', days: Array(7).fill({ amount: 0, metric: 0 }) },
           ],
           calendarBase: () => 0,
           calendarMiss: () => true,
@@ -639,11 +740,15 @@
       const $ = (id) => document.getElementById(id);
 
       function weekTotal(week) {
-        return week.days.reduce((a, b) => a + b, 0);
+        return week.days.reduce((sum, d) => sum + d.amount, 0);
       }
 
       function renderWeeks(role) {
         const body = $('weeksBody');
+        const cfg = DEMO[role];
+        const metricLabel = cfg.percent ? 'Eligibility' : 'Target';
+        const formatMetric = (m) =>
+          m > 0 ? (cfg.percent ? m.toFixed(1) + '%' : String(m)) : '—';
         body.innerHTML = '';
         DEMO[role].weeks.forEach((w, i) => {
           const isOpen = !!state.open[i];
@@ -669,21 +774,25 @@
             const nested = document.createElement('tr');
             nested.className = 'nested-row';
             const dayRows = w.days
-              .map((amount, d) => {
-                const date = addDays(w.start, d);
+              .map((d, offset) => {
+                const date = addDays(w.start, offset);
                 return (
                   '<tr><td>' +
                   shortDate(date) +
                   '</td><td>' +
-                  (amount > 0 ? 'Yes' : 'No') +
+                  formatMetric(d.metric) +
+                  '</td><td>' +
+                  (d.amount > 0 ? 'Yes' : 'No') +
                   '</td><td class="num">' +
-                  (amount > 0 ? money.format(amount) : '—') +
+                  (d.amount > 0 ? money.format(d.amount) : '—') +
                   '</td></tr>'
                 );
               })
               .join('');
             nested.innerHTML =
-              '<td colspan="2"><table><thead><tr><th>Date</th><th>Eligible</th><th class="num">Payout</th></tr></thead><tbody>' +
+              '<td colspan="2"><table><thead><tr><th>Date</th><th>' +
+              metricLabel +
+              '</th><th>Eligible</th><th class="num">Payout</th></tr></thead><tbody>' +
               dayRows +
               '</tbody></table></td>';
             body.appendChild(nested);
@@ -699,8 +808,8 @@
         const cfg = DEMO[role];
         const weekAmounts = {};
         cfg.weeks.forEach((w) =>
-          w.days.forEach((a, i) => {
-            weekAmounts[addDays(w.start, i)] = a;
+          w.days.forEach((d, i) => {
+            weekAmounts[addDays(w.start, i)] = d.amount;
           }),
         );
 

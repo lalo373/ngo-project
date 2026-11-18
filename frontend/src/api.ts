@@ -23,6 +23,8 @@ export interface DayEntry {
   date: string
   eligible: boolean
   amount: number
+  /** executives: daily target count; supervisors/DCs: eligible percent */
+  metric: number
 }
 
 export interface Week {

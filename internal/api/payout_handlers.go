@@ -48,7 +48,7 @@ func (a *API) weeklyPayouts(w http.ResponseWriter, r *http.Request) {
 	since := weekStart(today).AddDate(0, 0, -7*12) // last 12 weeks
 
 	rows, err := a.DB.Query(
-		`SELECT payout_date, eligible, amount FROM payout WHERE role=$1 AND login_id=$2 AND payout_date >= $3 ORDER BY payout_date DESC`,
+		`SELECT payout_date, eligible, amount, COALESCE(metric,0) FROM payout WHERE role=$1 AND login_id=$2 AND payout_date >= $3 ORDER BY payout_date DESC`,
 		m.Role, m.ID, since,
 	)
 	if err != nil {
@@ -61,6 +61,7 @@ func (a *API) weeklyPayouts(w http.ResponseWriter, r *http.Request) {
 		Date     string  `json:"date"`
 		Eligible bool    `json:"eligible"`
 		Amount   float64 `json:"amount"`
+		Metric   float64 `json:"metric"` // executives: target_count; supervisors/DCs: eligible %
 	}
 	type week struct {
 		WeekStart string  `json:"week_start"`
@@ -73,8 +74,8 @@ func (a *API) weeklyPayouts(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var d time.Time
 		var eligible bool
-		var amount float64
-		if err := rows.Scan(&d, &eligible, &amount); err != nil {
+		var amount, metric float64
+		if err := rows.Scan(&d, &eligible, &amount, &metric); err != nil {
 			fail(w, 500, err.Error())
 			return
 		}
@@ -88,7 +89,7 @@ func (a *API) weeklyPayouts(w http.ResponseWriter, r *http.Request) {
 			weeks = append(weeks, current)
 		}
 		current.Total += amount
-		current.Days = append(current.Days, day{Date: d.Format("2006-01-02"), Eligible: eligible, Amount: amount})
+		current.Days = append(current.Days, day{Date: d.Format("2006-01-02"), Eligible: eligible, Amount: amount, Metric: metric})
 	}
 	if err := rows.Err(); err != nil {
 		fail(w, 500, err.Error())

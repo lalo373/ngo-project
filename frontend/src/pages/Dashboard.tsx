@@ -77,10 +77,14 @@ function DailyTab({ me }: { me: Me }) {
   )
 }
 
-function WeeklyTab() {
+function WeeklyTab({ me }: { me: Me }) {
   const [data, setData] = useState<WeeklyPayouts | null>(null)
   const [error, setError] = useState('')
   const [open, setOpen] = useState<Record<number, boolean>>({ 0: true })
+
+  const metricLabel = me.role === 'executive' ? 'Target' : 'Eligibility'
+  const formatMetric = (metric: number) =>
+    metric > 0 ? (me.role === 'executive' ? String(metric) : `${metric.toFixed(1)}%`) : '—'
 
   useEffect(() => {
     let cancelled = false
@@ -116,6 +120,7 @@ function WeeklyTab() {
               <thead>
                 <tr>
                   <th>Date</th>
+                  <th>{metricLabel}</th>
                   <th>Eligible</th>
                   <th className="num">Payout</th>
                 </tr>
@@ -124,6 +129,7 @@ function WeeklyTab() {
                 {w.days.map((d) => (
                   <tr key={d.date}>
                     <td>{formatDate(d.date)}</td>
+                    <td>{formatMetric(d.metric)}</td>
                     <td>{d.eligible ? 'Yes' : 'No'}</td>
                     <td className="num">{d.amount > 0 ? money(d.amount) : '—'}</td>
                   </tr>
@@ -277,7 +283,7 @@ export default function Dashboard() {
           </button>
         </div>
         {tab === 'daily' && <DailyTab me={me} />}
-        {tab === 'weekly' && <WeeklyTab />}
+        {tab === 'weekly' && <WeeklyTab me={me} />}
         {tab === 'calendar' && <CalendarTab />}
       </div>
     </>
